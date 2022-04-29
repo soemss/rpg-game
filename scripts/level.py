@@ -13,12 +13,11 @@ class Tile(pygame.sprite.Sprite):
 
 class Level:
 
-    def __init__(self, group, tileList, interactList):
+    def __init__(self, group):
         super().__init__()
-        self.tileList = tileList
-        self.interactList = interactList
         self.levels = {0: {'name': 'tutorial', 'playerPosX': 100, 'playerPosY': 800},
-                       1: {'name': 'level2', 'playerPosX': 0, 'playerPosY': 0}}
+                       1: {'name': 'level2', 'playerPosX': 0, 'playerPosY': 0},
+                       2: {'name': 'final', 'playerPosX': 10, 'playerPosY': 0}}
         self.group = group
         self.map = None
 
@@ -39,47 +38,47 @@ class Level:
             for x, column in enumerate(row):
                 if column == '21':
                     tile = Tile(topLeft, x * tileSize, y * tileSize)
-                    self.tileList.add(tile)
+                    tileLayer.add(tile)
                     self.group.add(tile)
                 if column == '22':
                     tile = Tile(top, x * tileSize, y * tileSize)
-                    self.tileList.add(tile)
+                    tileLayer.add(tile)
                     self.group.add(tile)
                 if column == '23':
                     tile = Tile(topRight, x * tileSize, y * tileSize)
-                    self.tileList.add(tile)
+                    tileLayer.add(tile)
                     self.group.add(tile)
                 if column == '25':
                     tile = Tile(door, x * tileSize, y * tileSize)
-                    self.interactList.add(tile)
+                    interactList.add(tile)
                     self.group.add(tile)
 
                 if column == '31':
                     tile = Tile(left, x * tileSize, y * tileSize)
-                    self.tileList.add(tile)
+                    tileLayer.add(tile)
                     self.group.add(tile)
                 if column == '32':
                     tile = Tile(middle, x * tileSize, y * tileSize)
-                    self.tileList.add(tile)
+                    tileLayer.add(tile)
                     self.group.add(tile)
                 if column == '33':
                     tile = Tile(right, x * tileSize, y * tileSize)
-                    self.tileList.add(tile)
+                    tileLayer.add(tile)
                     self.group.add(tile)
                 if column == '35':
                     tile = Tile(flat, x * tileSize, y * tileSize)
-                    self.tileList.add(tile)
+                    tileLayer.add(tile)
                     self.group.add(tile)
                 if column == '41':
                     tile = Tile(bottomLeft, x * tileSize, y * tileSize)
-                    self.tileList.add(tile)
+                    tileLayer.add(tile)
                     self.group.add(tile)
                 if column == '42':
                     tile = Tile(bottom, x * tileSize, y * tileSize)
-                    self.tileList.add(tile)
+                    tileLayer.add(tile)
                     self.group.add(tile)
                 if column == '43':
                     tile = Tile(bottomRight, x * tileSize, y * tileSize)
-                    self.tileList.add(tile)
+                    tileLayer.add(tile)
                     self.group.add(tile)
-                # group.add(self.tileList)
+                # group.add(tileLayer)

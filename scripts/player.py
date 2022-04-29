@@ -12,7 +12,7 @@ clock = pygame.time.Clock()
 class Player(pygame.sprite.Sprite):
     layer = 2
 
-    def __init__(self, pos, group, tileList, interactList):
+    def __init__(self, pos, group):
         super().__init__(group)
         # player animations
         self.frame = 0
@@ -25,7 +25,7 @@ class Player(pygame.sprite.Sprite):
         self.airTimer = 0
         self.speed = 6
         self.gravity = 0
-        self.tileList = tileList
+        self.tileList = tileLayer
         self.interactList = interactList
         self.direction = {'left': False, 'right': True}
         self.health = 50
@@ -128,7 +128,6 @@ class Player(pygame.sprite.Sprite):
 
         self.rect.x += self.velocity[0] * dt
         tileList = self.tileList
-        interactList = self.interactList
         for tile in tileList:
             if self.rect.colliderect(tile.rect):
                 if self.velocity[0] < 0:
@@ -187,20 +186,17 @@ class Player(pygame.sprite.Sprite):
 
     def cooldown(self):
         currentTick = pygame.time.get_ticks()
-        if not self.canDash:
-            if currentTick - self.dashTime >= self.dashCooldown:
-                self.canDash = True
-        if self.attacking:
-            if currentTick - self.attackTime >= self.attackCooldown:
-                self.attacking = False
-        if self.swapping:
-            if currentTick - self.swapTime >= self.swapCooldown:
-                self.swapping = False
-        if self.interacting:
-            if currentTick - self.interactTime >= self.interactCooldown:
-                self.interacting = False
+        if not self.canDash and currentTick - self.dashTime >= self.dashCooldown:
+            self.canDash = True
+        if self.attacking and currentTick - self.attackTime >= self.attackCooldown:
+            self.attacking = False
+        if self.swapping and currentTick - self.swapTime >= self.swapCooldown:
+            self.swapping = False
+        if self.interacting and currentTick - self.interactTime >= self.interactCooldown:
+            self.interacting = False
 
     def update(self, dt, dx, dy, weaponAngle):
         self.airTimer += 1
+        print(self.selected)
         self.inventory.update(weaponAngle), self.cooldown(), self.animate(weaponAngle, dx, dy), self.movement(
             dt), self.collision(dt)

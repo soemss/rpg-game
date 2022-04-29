@@ -1,6 +1,8 @@
 import pygame
 
 # Level Config #
+tileLayer = pygame.sprite.Group()
+interactList = pygame.sprite.Group()
 
 bottom = pygame.transform.scale(pygame.image.load('assets/bottom.png'),
                                 (65, 65))

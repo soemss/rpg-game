@@ -15,10 +15,9 @@ screen = pygame.display.set_mode((screenWidth, screenHeight), pygame.SCALED + py
 clock = pygame.time.Clock()
 startTicks = pygame.time.get_ticks()
 pygame.display.set_caption('RPG Game')
-fps = 30
+fps = 60
 
-tileLayer = pygame.sprite.Group()
-interactList = pygame.sprite.Group()
+
 enemyList = pygame.sprite.Group()
 gameSprites = pygame.sprite.LayeredUpdates()
 
@@ -46,11 +45,10 @@ def game():
     running = True
     # creating objects
     cam_group = CameraGroup()
-    level = Level(gameSprites, tileLayer, interactList)
+    level = Level(gameSprites)
     level.loadMap()
     level.render()
-    player = Player((level.levels[currentLevel].get('playerPosX'), level.levels[currentLevel].get('playerPosY')),
-                    gameSprites, tileLayer, interactList)
+    player = Player((level.levels[currentLevel].get('playerPosX'), level.levels[currentLevel].get('playerPosY')), gameSprites)
     last_time = time.time()
     # slime = Slime((level.))
     slime1 = Entity((random.randrange(400, 600), 1160), gameSprites, tileLayer)
@@ -71,13 +69,9 @@ def game():
         # level updates
         if nextLevel:
             currentLevel += 1
-            gameSprites.empty()
-            tileLayer.empty()
-            interactList.empty()
-            player = Player(
-                (level.levels[currentLevel].get('playerPosX'), level.levels[currentLevel].get('playerPosY')),
-                gameSprites, tileLayer, interactList)
-            level = Level(gameSprites, tileLayer, interactList)
+            gameSprites.empty(), tileLayer.empty(), interactList.empty()
+            player = Player((level.levels[currentLevel].get('playerPosX'), level.levels[currentLevel].get('playerPosY')), gameSprites)
+            level = Level(gameSprites)
             level.loadMap()
             level.render()
             nextLevel = False
@@ -88,8 +82,8 @@ def game():
         if player.attacking and player.item.rect.colliderect(slime1.rect):
             slime1.health -= weaponData[player.belt[0]].get('damage')
         # print(angle)
-        print(player.health)
-        print(slime1.health)
+        # print(player.health)
+        # print(slime1.health)
         # function updates
         if slime1.health > 0:
             slime1.update(dt, player)
@@ -100,6 +94,7 @@ def game():
         elif player.health <= 0:
             player.kill()
 
+        print(player.rect)
         # print(nextLevel, currentLevel)
         cam_group.update()
         cam_group.render(player)
@@ -108,6 +103,6 @@ def game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
+# _1_ 400 - 680 , 1160 _2_ 1175 - 1745, 380 | 1365 - 1950, 838 _3_ 1245 - 1540, 708 | 2020 - 2675, 968 | 2600 - 2950 ,1553 | 450 - 1785, 2150
 
 game()
