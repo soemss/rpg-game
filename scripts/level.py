@@ -30,9 +30,9 @@ class Level:
             reader = csv.reader(f)
             self.map = list(reader)
 
-    def render(self):
+    def render(self, map):
         tileSize = bottom.get_height()
-        for y, row in enumerate(self.map):
+        for y, row in enumerate(map):
             for x, column in enumerate(row):
                 if column == '21':
                     tile = Tile(topLeft, x * tileSize, y * tileSize)
