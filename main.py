@@ -11,15 +11,17 @@ import time
 pygame.init()
 screenWidth = 900
 screenHeight = 600
-screen = pygame.display.set_mode((screenWidth, screenHeight),
-                                 pygame.SCALED + pygame.RESIZABLE)
+screen = pygame.display.set_mode((screenWidth, screenHeight), pygame.SCALED + pygame.RESIZABLE)
 clock = pygame.time.Clock()
 startTicks = pygame.time.get_ticks()
 pygame.display.set_caption('RPG Game')
 fps = 60
+font = pygame.font.SysFont('Arial', 25)
 
 enemyList = pygame.sprite.Group()
 gameSprites = pygame.sprite.LayeredUpdates()
+enemySpawns1 = [(random.randrange(400, 680), 1160), (random.randrange(1350, 1650), 1228)]
+enemySpawns2 = [(random.randrange(480, 750), 123), (random.randrange(1175, 1745), 380), (random.randrange(1365, 1950), 838), (random.randrange(350, 750), 1033)]
 
 currentLevel = 0
 nextLevel = False
@@ -31,89 +33,99 @@ class CameraGroup(pygame.sprite.Group):
         self.scroll = [0, 0]
 
     def render(self, player):
-        # scrolling camera
-        self.scroll[0] += ((player.rect.x - self.scroll[0] -
-                            (screenWidth / 2)) + 10) / 20
-        self.scroll[1] += (player.rect.y - self.scroll[1] -
-                           (screenHeight / 2)) / 20
+        # moves items based on player movement for 'scrolling camera' effect
+        self.scroll[0] += ((player.rect.x - self.scroll[0] - (screenWidth / 2)) + 10) / 20
+        self.scroll[1] += (player.rect.y - self.scroll[1] - (screenHeight / 2)) / 20
 
         for sprite in gameSprites.sprites():
             sprite.image.set_colorkey((0, 0, 0))
-            screen.blit(sprite.image, (sprite.rect.x - self.scroll[0],
-                                       sprite.rect.y - self.scroll[1]))
+            screen.blit(sprite.image, (sprite.rect.x - self.scroll[0], sprite.rect.y - self.scroll[1]))
 
 
 def game():
-	global nextLevel, currentLevel
-	running = True
-	# creating objects
-	cam_group = CameraGroup()
-	level = Level(gameSprites)
-	level.loadMap()
-	level.render()
-	player = Player((level.levels[currentLevel].get('playerPosX'),
-									 level.levels[currentLevel].get('playerPosY')),
-									gameSprites)
-	last_time = time.time()
-	# slime = Slime((level.))
-	slime1 = Entity((random.randrange(400, 600), 1160), gameSprites, tileLayer)
-	while running:
-			screen.fill((8, 5, 28))
-			# delta time
-			dt = time.time() - last_time
-			dt *= 60
-			last_time = time.time()
+    global nextLevel, currentLevel
+    running = True
+    # creating objects
+    cam_group = CameraGroup()
+    level = Level(gameSprites)
+    level.loadMap()
+    level.render()
+    player = Player((level.levels[currentLevel].get('playerPosX'), level.levels[currentLevel].get('playerPosY')), gameSprites)
+    last_time = time.time()
+    # slime = Slime((level.))
+    while running:
+        screen.fill((8, 5, 28))
+        # delta time
+        dt = time.time() - last_time
+        dt *= 60
+        last_time = time.time()
 
-			# mouse config
-			# pygame.mouse.set_visible(False)
-			mx, my = pygame.mouse.get_pos()
-			dx, dy = mx - (screenWidth / 2) + player.rect.x, my - (
-					screenHeight / 2) + player.rect.y
-			# https://stackoverflow.com/questions/20162302/pygame-point-image-towards-mouse
-			angle = 270 + math.atan2(mx - (screenWidth / 2), my -
-															 (screenHeight / 2)) * (180 / math.pi)
+        # mouse config
+        # pygame.mouse.set_visible(False)
+        mx, my = pygame.mouse.get_pos()
+        dx, dy = mx - (screenWidth / 2) + player.rect.x, my - (
+                screenHeight / 2) + player.rect.y
+        # https://stackoverflow.com/questions/20162302/pygame-point-image-towards-mouse
+        angle = 270 + math.atan2(mx - (screenWidth / 2), my -
+                                 (screenHeight / 2)) * (180 / math.pi)
 
-			# level updates
-			if nextLevel:
-					currentLevel += 1
-					gameSprites.empty(), tileLayer.empty(), interactList.empty()
-					player = Player((level.levels[currentLevel].get('playerPosX'),
-													 level.levels[currentLevel].get('playerPosY')),
-													gameSprites)
-					level = Level(gameSprites)
-					level.loadMap()
-					level.render()
-					nextLevel = False
+        # level updates
 
-			
-			# print(angle)
-			# print(player.health)
-			# print(slime1.health)
-			# function updates
-			if slime1.health > 0:
-					if player.rect.colliderect(slime1.rect) or slime1.rect.right == player.rect.left or slime1.rect.left == player.rect.right:
-							player.health -= slime1.damage
-					slime1.update(dt, player)
-			elif slime1.health <= 0:
-					slime1.kill()
-			if player.health > 0:
-					if player.attacking and player.item.rect.colliderect(slime1.rect):
-							slime1.health -= weaponData[player.belt[player.selected]].get('damage')
-					player.update(dt, dx, dy, angle)
-			elif player.health <= 0:
-					player.kill()
-					running = False
+        if nextLevel:
+            currentLevel += 1
+            gameSprites.empty(), tileLayer.empty(), interactList.empty(), slimeGroup.empty()
+            player = Player((level.levels[currentLevel].get('playerPosX'), level.levels[currentLevel].get('playerPosY')), gameSprites)
+            level = Level(gameSprites)
+            level.loadMap()
+            level.render()
+            nextLevel = False
 
-			# print(nextLevel, currentLevel)
-			cam_group.update()
-			cam_group.render(player)
-			pygame.display.flip()
-			clock.tick(fps)
-			for event in pygame.event.get():
-					if event.type == pygame.QUIT:
-							running = False
+        # function updates
+
+        if currentLevel == 0:
+            for slimes in range(len(enemySpawns1)):
+                if len(slimeGroup) <= len(enemySpawns1):
+                    slimeEnemy = Entity(enemySpawns1[slimes], gameSprites, tileLayer, 0.02)
+                    slimeEnemy.add(slimeGroup)
+        if currentLevel == 1:
+            for slimes in range(len(enemySpawns2)):
+                if len(slimeGroup) <= len(enemySpawns2):
+                    slimeEnemy = Entity(enemySpawns2[slimes], gameSprites, tileLayer, 0.05)
+                    slimeEnemy.add(slimeGroup)
+
+        for slimeEnemy in slimeGroup:
+            # slimeEnemy.update(dt, player)
+            if slimeEnemy.health > 0:
+                # if player.rect.colliderect(slimeEnemy.rect) or slimeEnemy.rect.right == player.rect.left or slimeEnemy.rect.left == player.rect.right:
+                #     player.health -= slimeEnemy.damage
+                slimeEnemy.update(dt, player, slimeEnemy)
+            elif slimeEnemy.health <= 0:
+                slimeEnemy.kill()
+            # print(slimeEnemy.health)
+
+        if player.health > 0:
+            player.update(dt, dx, dy, angle)
+        if player.health <= 0:
+            player.kill()
+            running = False
+
+        # print(nextLevel, currentLevel)
+        # print(slimeGroup)
+        # print(player.health)
+        # print(slimeGroup)
+
+        cam_group.update()
+        cam_group.render(player)
+        screen.blit(font.render(f'{round(player.health)}', False, (255, 255, 255)), (100, 500))
+        pygame.display.flip()
+        clock.tick(fps)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
 
-# _1_ 400 - 680 , 1160 _2_ 1175 - 1745, 380 | 1365 - 1950, 838 _3_ 1245 - 1540, 708 | 2020 - 2675, 968 | 2600 - 2950 ,1553 | 450 - 1785, 2150
+# _1_ 400 - 680 , 1160 | 1350 - 1650, 1228
+# _2_ 480 - 750 , 123 | 1175 - 1745, 380 | 1365 - 1950, 838 | 350 - 750, 1033
+# _3_ 1245 - 1540, 708 | 2020 - 2675, 968 | 2600 - 2950 ,1553 | 450 - 1785, 2150
 
 game()

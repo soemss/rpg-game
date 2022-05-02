@@ -1,4 +1,5 @@
 from scripts.config import *
+from scripts.slime import Entity
 import csv
 
 
@@ -33,7 +34,7 @@ class Level:
 
     def render(self):
         tileSize = bottom.get_height()
-
+        slimePositions = []
         for y, row in enumerate(self.map):
             for x, column in enumerate(row):
                 if column == '21':
@@ -82,3 +83,4 @@ class Level:
                     tileLayer.add(tile)
                     self.group.add(tile)
                 # group.add(tileLayer)
+        print(slimePositions)
