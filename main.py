@@ -45,7 +45,7 @@ class CameraGroup(pygame.sprite.Group):
             sprite.image.set_colorkey((0, 0, 0))
             screen.blit(sprite.image, (sprite.rect.x - self.scroll[0], sprite.rect.y - self.scroll[1]))
 
-def levelSettings(level, enemyList, attackDamage, health, player, belt1, belt2):
+def levelInitialize(level, enemyList, attackDamage, health, player, belt1, belt2):
   player.belt[0] = belt1
   player.belt[1] = belt2
   if currentLevel == level:
@@ -90,9 +90,9 @@ def game():
             level.render()
 
             # creates enemy objects whenever the level changes
-            loadEnemies(0, enemySpawns1, 0.01, 15, player, 'stick', None)
-            loadEnemies(1, enemySpawns1, 0.03, 50, player, 'stone_sword', None)
-            loadEnemies(2, enemySpawns1, 0.06, 80, player, 'stone_sword), 'health_potion')
+            levelInitialize(0, enemySpawns1, 0.01, 15, player, 'stick', None)
+            levelInitialize(1, enemySpawns1, 0.03, 50, player, 'stone_sword', None)
+            levelInitialize(2, enemySpawns1, 0.06, 80, player, 'stone_sword), 'health_potion')
             
             nextLevel = False
 
