@@ -1,18 +1,11 @@
 import math
-
 from scripts.inventory import Item, Inventory
 from scripts.config import *
-
-# import time
-# import operator
-
 clock = pygame.time.Clock()
-
 
 class Player(pygame.sprite.Sprite):
     layer = 2
-
-    def __init__(self, pos, group):
+    def __init__(self, pos, group, health):
         super().__init__(group)
         # player animations
         self.frame = 0
@@ -28,7 +21,7 @@ class Player(pygame.sprite.Sprite):
         self.tileList = tileLayer
         self.interactList = interactList
         self.direction = {'left': False, 'right': True}
-        self.health = 30
+        self.health = health
 
         # player mechanics
         self.attacking = False
@@ -40,8 +33,6 @@ class Player(pygame.sprite.Sprite):
         self.interacting = False
         self.interactCooldown = 400
         self.interactTime = 0
-        self.primarySelected = False
-        self.secondarySelected = False
         self.swapping = False
         self.swapCooldown = 100
         self.swapTime = 0
@@ -58,22 +49,20 @@ class Player(pygame.sprite.Sprite):
         group.add(self, layer=self.layer)
 
     def movement(self, dt):
-
         self.velocity = pygame.Vector2(0, 0)
         keys = pygame.key.get_pressed()
-
+        # left, right, dash, and jump input
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             self.velocity[0] += self.speed
-            if not self.primarySelected:
+            if self.selected is None:
                 self.direction['right'], self.direction['left'] = True, False
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             self.velocity[0] -= self.speed
-            if not self.primarySelected:
+            if self.selected is None:
                 self.direction['left'], self.direction['right'] = True, False
         if keys[pygame.K_w] or keys[pygame.K_UP]:
             if self.airTimer < 3:
                 self.gravity = -16
-
         if keys[pygame.K_SPACE] and self.canDash:
             if self.direction['right']:
                 self.velocity[0] += 200
@@ -81,10 +70,13 @@ class Player(pygame.sprite.Sprite):
                 self.velocity[0] -= 200
             self.canDash = False
             self.dashTime = pygame.time.get_ticks()
-        if pygame.mouse.get_pressed()[0] and not self.attacking:
+        # interaction input
+        if pygame.mouse.get_pressed()[0] and not self.attacking and self.selected is not None:
             self.attacking = True
             self.attackTime = pygame.time.get_ticks()
-            print("attack")
+            if self.selected == 'health_potion' and self.belt is not None:
+                self.health += weaponData['health_potion'].get('health')
+
         if keys[pygame.K_1] and not self.swapping:
             if self.selected == self.belt[0]:
                 self.selected = None
@@ -102,7 +94,6 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_e] and not self.interacting:
             self.interacting = True
             self.interactTime = pygame.time.get_ticks()
-            print('interacting')
         if keys[pygame.K_r]:
             self.rect = self.image.get_rect(center=(0, 0))
 
@@ -113,7 +104,6 @@ class Player(pygame.sprite.Sprite):
 
     def collision(self, dt):
         # horizontal collision
-
         self.rect.x += self.velocity[0] * dt
         tileList = self.tileList
         for tile in tileList:
@@ -134,7 +124,7 @@ class Player(pygame.sprite.Sprite):
                     self.rect.top = tile.rect.bottom
                     self.gravity = 0
         for tile in interactList:
-            if self.rect.colliderect(tile.rect) and self.interacting:
+            if self.rect.colliderect(tile.rect) and self.interacting and len(slimeGroup.sprites()) == 0:
                 import main
                 main.nextLevel = True
         for enemy in slimeGroup:
@@ -192,5 +182,5 @@ class Player(pygame.sprite.Sprite):
 
     def update(self, dt, dx, dy, weaponAngle):
         self.airTimer += 1
-
+        print(self.attackCooldown)
         self.inventory.update(weaponAngle, self.selected), self.cooldown(), self.animate(weaponAngle, dx, dy), self.movement(dt), self.collision(dt)

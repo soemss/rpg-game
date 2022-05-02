@@ -9,20 +9,18 @@ class Tile(pygame.sprite.Sprite):
         self.tileImage = image
         self.image = image
         self.rect = self.image.get_rect(topleft=(x, y))
-        self.map = None
 
 
 class Level:
 
     def __init__(self, group):
         super().__init__()
-        self.levels = {0: {'name': 'tutorial', 'playerPosX': 100, 'playerPosY': 800},
+        self.levels = {-1: {'name': 'tutorial', 'playerPosX': 100, 'playerPosY': 800},
+                       0: {'name': 'tutorial', 'playerPosX': 100, 'playerPosY': 800},
                        1: {'name': 'level2', 'playerPosX': 0, 'playerPosY': 0},
                        2: {'name': 'final', 'playerPosX': 10, 'playerPosY': 0}}
         self.group = group
         self.map = None
-
-    # gameSprites.change_layer(self, 1)
 
     def loadMap(self):
         import main
@@ -34,7 +32,6 @@ class Level:
 
     def render(self):
         tileSize = bottom.get_height()
-        slimePositions = []
         for y, row in enumerate(self.map):
             for x, column in enumerate(row):
                 if column == '21':
@@ -53,7 +50,6 @@ class Level:
                     tile = Tile(door, x * tileSize, y * tileSize)
                     interactList.add(tile)
                     self.group.add(tile)
-
                 if column == '31':
                     tile = Tile(left, x * tileSize, y * tileSize)
                     tileLayer.add(tile)
@@ -82,5 +78,3 @@ class Level:
                     tile = Tile(bottomRight, x * tileSize, y * tileSize)
                     tileLayer.add(tile)
                     self.group.add(tile)
-                # group.add(tileLayer)
-        print(slimePositions)
