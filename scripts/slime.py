@@ -70,5 +70,4 @@ class Entity(pygame.sprite.Sprite):
 
     def update(self, dt, player, slimeEnemy):
         self.airTimer += 1
-
         self.animate(), self.movement(dt, player), self.collision(dt)

@@ -1,10 +1,13 @@
 import math
 from scripts.inventory import Item, Inventory
 from scripts.config import *
+
 clock = pygame.time.Clock()
+
 
 class Player(pygame.sprite.Sprite):
     layer = 2
+
     def __init__(self, pos, group, health):
         super().__init__(group)
         # player animations
@@ -182,5 +185,6 @@ class Player(pygame.sprite.Sprite):
 
     def update(self, dt, dx, dy, weaponAngle):
         self.airTimer += 1
-        print(self.attackCooldown)
-        self.inventory.update(weaponAngle, self.selected), self.cooldown(), self.animate(weaponAngle, dx, dy), self.movement(dt), self.collision(dt)
+        self.inventory.update(weaponAngle, self.selected), self.cooldown(), self.animate(weaponAngle, dx,
+                                                                                         dy), self.movement(
+            dt), self.collision(dt)

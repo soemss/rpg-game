@@ -45,20 +45,26 @@ class CameraGroup(pygame.sprite.Group):
             sprite.image.set_colorkey((0, 0, 0))
             screen.blit(sprite.image, (sprite.rect.x - self.scroll[0], sprite.rect.y - self.scroll[1]))
 
-def levelInitialize(level, enemyList, attackDamage, health, player, belt1, belt2):
-  player.belt[0] = belt1
-  player.belt[1] = belt2
-  if currentLevel == level:
-    for slimes in range(len(enemyList)):
-      if len(slimeGroup) <= len(enemyList):
-          slimeEnemy = Entity(enemyList[slimes], gameSprites, tileLayer, attackDamage, heatlh)
-          slimeEnemy.add(slimeGroup)
+
+def levelInitialize(level, enemyPositions, enemyDamage, enemyHealth, player, belt1, belt2):
+    if currentLevel == level:
+        player.belt[0] = belt1
+        player.belt[1] = belt2
+        for slimes in range(len(enemyPositions)):
+            if len(slimeGroup) <= len(enemyPositions):
+                slimeEnemy = Entity(enemyPositions[slimes], gameSprites, tileLayer, enemyDamage, enemyHealth)
+                if currentLevel == 1:
+                    slimeEnemy.speed += 0.4
+                if currentLevel == 2:
+                    slimeEnemy.speed += 0.8
+                slimeEnemy.add(slimeGroup)
+
 
 def game():
     global nextLevel, currentLevel
     running = True
     # creating objects
-    cam_group = CameraGroup()
+    cameraGroup = CameraGroup()
     level = Level(gameSprites)
     level.loadMap()
     level.render()
@@ -77,8 +83,7 @@ def game():
         dx, dy = mx - (screenWidth / 2) + player.rect.x, my - (screenHeight / 2) + player.rect.y
         # used this stackoverflow page for the item rotation angle
         # https://stackoverflow.com/questions/20162302/pygame-point-image-towards-mouse
-        angle = 270 + math.atan2(mx - (screenWidth / 2), my -
-                                 (screenHeight / 2)) * (180 / math.pi)
+        angle = 270 + math.atan2(mx - (screenWidth / 2), my - (screenHeight / 2)) * (180 / math.pi)
 
         # level updates
         if nextLevel:
@@ -91,9 +96,8 @@ def game():
 
             # creates enemy objects whenever the level changes
             levelInitialize(0, enemySpawns1, 0.01, 15, player, 'stick', None)
-            levelInitialize(1, enemySpawns1, 0.03, 50, player, 'stone_sword', None)
-            levelInitialize(2, enemySpawns1, 0.06, 80, player, 'stone_sword), 'health_potion')
-            
+            levelInitialize(1, enemySpawns2, 0.03, 50, player, 'stone_sword', None)
+            levelInitialize(2, enemySpawns3, 0.06, 80, player, 'stone_sword', 'health_potion')
             nextLevel = False
 
         # function updates
@@ -111,10 +115,11 @@ def game():
         if player.health <= 0 or player.rect.y >= 3000:
             player.kill()
             screen.blit(font.render(f'You Died', False, (255, 255, 255)), (screenWidth / 2 - 50, screenHeight / 2))
+            player.health = 0
         if currentLevel == 2 and len(slimeGroup.sprites()) == 0:
             screen.blit(font.render(f'You Win', False, (255, 255, 255)), (screenWidth / 2, screenHeight / 2))
-        cam_group.update()
-        cam_group.render(player)
+        cameraGroup.update()
+        cameraGroup.render(player)
         screen.blit(font.render(f'{round(player.health)}', False, (255, 255, 255)), (50, 500))
         screen.blit(font.render(f'Enemies Left: {len(slimeGroup.sprites())}', False, (255, 255, 255)), (50, 525))
         pygame.display.flip()
@@ -122,5 +127,6 @@ def game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+
 
 game()
